@@ -183,7 +183,7 @@ class Alien(pygame.sprite.Sprite):
 # Alien Bullets class
 class AlienBomb(pygame.sprite.Sprite):
     last_shot = pygame.time.get_ticks()
-    cooldown = 1000  # millisecond
+    cooldown = 800  # millisecond
 
     def __init__(self, x, y) -> None:
         super().__init__()
