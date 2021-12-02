@@ -46,7 +46,7 @@ class Screen:
         self.font_bold = pygame.font.Font(
             'resources/fonts/Petrona-Bold.ttf', 60, bold=True)
         self.font_light = pygame.font.Font(
-            'resources/fonts/Petrona-Italic.ttf', 200, bold=True)
+            'resources/fonts/Petrona-Italic.ttf', 30, bold=True)
         pygame.display.set_caption(WINDOW_CAPTION)
         pygame.display.set_icon(pygame.image.load(WINDOW_ICON_PATH))
 
@@ -85,7 +85,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.remaining_health = health
         self.last_shot = pygame.time.get_ticks()
 
-    def update(self) :
+    def update(self):
         screen.game_over = 0
 
         speed = int(ROCKET_SPEED)
@@ -116,7 +116,7 @@ class Spaceship(pygame.sprite.Sprite):
                 Explosion(self.rect.centerx, self.rect.centery, 15))
             Audio('resources/Audio/explode.mp3').audio.play()
             spaceship.kill()
-            screen.game_over=-1
+            screen.game_over = -1
         return screen.game_over
 
 
@@ -136,7 +136,6 @@ class Bullets(pygame.sprite.Sprite):
         self.rect.y -= speed
         if self.rect.bottom < 0:
             self.kill()
-
 
         if pygame.sprite.spritecollide(self, aliens_group, True):
             self.kill()
@@ -175,8 +174,8 @@ class Alien(pygame.sprite.Sprite):
 
     @staticmethod
     def draw_aliens():
-        rows = 5
-        cols = 9
+        rows = 1
+        cols = 1
         for row in range(rows):
             for col in range(cols):
                 aliens_group.add(Alien(80+col*80, 60+row*80))
@@ -257,6 +256,20 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_r:
+                # replay game
+                screen.game_over = 0
+                # remove all objects
+                spaceship_group.empty()
+                bullets_group.empty()
+                aliens_bomb_group.empty()
+                aliens_group.empty()
+                # reinitialise all object
+                Alien.draw_aliens()
+                spaceship_group.add(spaceship)
+                spaceship.remaining_health = spaceship.health
+
     if screen.game_over == 0:
         # set fps control refresh rate
         screen.clock.tick(screen.fps)
@@ -275,19 +288,19 @@ while run:
 
             # update agents
             bullets_group.update()
-            screen.game_over=spaceship.update()
+            screen.game_over = spaceship.update()
             aliens_group.update()
             aliens_bomb_group.update()
 
+        # draw agents
+        bullets_group.draw(screen.screen)
+        spaceship_group.draw(screen.screen)
+        aliens_bomb_group.draw(screen.screen)
+        aliens_group.draw(screen.screen)
+        explosion_group.draw(screen.screen)
+
         if len(aliens_group) == 0:
             screen.game_over = 1
-
-            if screen.game_over == 1:
-                screen.draw_text('YOU WON!', screen.font_bold,
-                                 (screen.width//2-150, screen.hight//2-100))
-            if screen.game_over == -1:
-                screen.draw_text('YOU LOSE!', screen.font_bold,
-                                 (screen.width//2-150, screen.hight//2-100))
 
         if screen.cooldown > 0:
             screen.draw_text('GET READY!', screen.font_bold,
@@ -297,13 +310,18 @@ while run:
             if current_time-screen.time > 1000:
                 screen.time = current_time
                 screen.cooldown -= 1
-        explosion_group.update()
+    explosion_group.update()
 
-        # draw agents
-        bullets_group.draw(screen.screen)
-        spaceship_group.draw(screen.screen)
-        aliens_bomb_group.draw(screen.screen)
-        aliens_group.draw(screen.screen)
-        explosion_group.draw(screen.screen)
-    print(screen.game_over)
+    if screen.game_over == 1:
+        screen.draw_text('YOU WON!', screen.font_bold,
+                         (screen.width//2-150, screen.hight//2-100))
+        screen.draw_text('press R to replay', screen.font_light,
+                         (screen.width//2-100, screen.hight//2-50))
+    if screen.game_over == -1:
+        screen.draw_text('YOU LOSE!', screen.font_bold,
+                         (screen.width//2-150, screen.hight//2-100))
+
+        screen.draw_text('press R to replay', screen.font_light,
+                         (screen.width//2-100, screen.hight//2-50))
+
     screen.update_screen()
