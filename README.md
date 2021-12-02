@@ -2,7 +2,8 @@ This is pygame implementation of classic 'Space Invader' game.
 
 It has no other dependency beside "pygame"
 
-clone this repo and execute 'main.py' file
+Clone this repo and execute 'main.py' file or <br>
+In a Unix-based system execute ./dist/main file from project directory
 
 
 <strong>How To Play:</strong>
@@ -13,7 +14,7 @@ clone this repo and execute 'main.py' file
 
 <strong>Controls:</strong>
 <ol>
-<li>press left/right arrow key to move spaceship in left/right direction.</li>
+<li>Press left/right arrow key to move spaceship in left/right direction.</li>
 <li>Press spacebar to shoot bullets.</li>
 <li>After game over to replay the game press R key.</li>
 </ol>
