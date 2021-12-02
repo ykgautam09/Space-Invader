@@ -3,7 +3,6 @@ import random
 import pygame
 from configparser import ConfigParser
 
-
 config = ConfigParser()
 config.read('./.config')
 SCREEN_WIDTH = int(config['DEFAULT']['SCREEN_WIDTH'])
@@ -100,17 +99,18 @@ class Spaceship(pygame.sprite.Sprite):
 
         current_time = pygame.time.get_ticks()
         # on space press create and shoot bullet
-        if key[pygame.K_SPACE] and current_time-self.last_shot > reload_time:
+        if key[pygame.K_SPACE] and current_time - self.last_shot > reload_time:
             Audio('resources/Audio/bullet.mp3').audio.play()
-            bullets_group.add(Bullets(self.rect.centerx, self.rect.top+5))
+            bullets_group.add(Bullets(self.rect.centerx, self.rect.top + 5))
             self.last_shot = current_time
 
         # create health bar
         pygame.draw.rect(screen.screen, (255, 0, 0),
-                         (self.rect.x, self.rect.bottom+10, self.rect.width, 8))
+                         (self.rect.x, self.rect.bottom + 10, self.rect.width, 8))
         if self.remaining_health:
             pygame.draw.rect(screen.screen, (0, 255, 0),
-                             (self.rect.x, self.rect.bottom+10, int(self.rect.width*(self.remaining_health/self.health)), 8))
+                             (self.rect.x, self.rect.bottom + 10,
+                              int(self.rect.width * (self.remaining_health / self.health)), 8))
         if spaceship.remaining_health <= 0:
             explosion_group.add(
                 Explosion(self.rect.centerx, self.rect.centery, 15))
@@ -121,8 +121,6 @@ class Spaceship(pygame.sprite.Sprite):
 
 
 # Spaceship Bullets class
-
-
 class Bullets(pygame.sprite.Sprite):
     def __init__(self, x, y) -> None:
         super().__init__()
@@ -166,7 +164,7 @@ class Alien(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self) -> None:
-        self.rect.x += self.direction*int(ALIEN_SPEED)
+        self.rect.x += self.direction * int(ALIEN_SPEED)
         self.counter += 1
         if abs(self.counter) >= 50:
             self.direction *= -1
@@ -174,15 +172,14 @@ class Alien(pygame.sprite.Sprite):
 
     @staticmethod
     def draw_aliens():
-        rows = 1
-        cols = 1
+        rows = 5
+        cols = 9
         for row in range(rows):
             for col in range(cols):
-                aliens_group.add(Alien(80+col*80, 60+row*80))
+                aliens_group.add(Alien(80 + col * 80, 60 + row * 80))
+
 
 # Alien Bullets class
-
-
 class AlienBomb(pygame.sprite.Sprite):
     last_shot = pygame.time.get_ticks()
     cooldown = 1000  # milisecond
@@ -196,7 +193,7 @@ class AlienBomb(pygame.sprite.Sprite):
 
     def update(self) -> None:
         speed = int(BULLET_SPEED)
-        self.rect.y += speed//2
+        self.rect.y += speed // 2
         if self.rect.top > screen.hight:
             self.kill()
         if pygame.sprite.spritecollide(self, spaceship_group, False, pygame.sprite.collide_mask):
@@ -208,13 +205,12 @@ class AlienBomb(pygame.sprite.Sprite):
 
 
 # Explosion class
-
-
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, x, y, scale) -> None:
         super().__init__()
         self.image_list = [pygame.transform.scale(pygame.image.load(os.path.join('./resources/image/Explosion',
-                                                                                 path)), (10*scale, 10*scale)) for path in os.listdir('./resources/image/Explosion/')]
+                                                                                 path)), (10 * scale, 10 * scale)) for
+                           path in os.listdir('./resources/image/Explosion/')]
         self.index = 0
         self.image = self.image_list[self.index]
         self.rect = self.image.get_rect()
@@ -224,21 +220,21 @@ class Explosion(pygame.sprite.Sprite):
     def update(self) -> None:
         speed = 3
         self.counter += 1
-        if self.counter >= speed and self.index < len(self.image_list)-1:
+        if self.counter >= speed and self.index < len(self.image_list) - 1:
             self.index += 1
             self.counter = 0
             self.image = self.image_list[self.index]
-        if self.index >= len(self.image_list)-1:
+        if self.index >= len(self.image_list) - 1:
             self.kill()
 
 
 # initialise spaceship
-spaceship = Spaceship(screen.width//2, screen.hight-100, 3)
+spaceship = Spaceship(screen.width // 2, screen.hight - 100, 3)
 spaceship_group = pygame.sprite.Group()
 spaceship_group.add(spaceship)
 
 # initialise bullets
-bullet = Bullets(spaceship.rect.x, spaceship.rect.y-10)
+bullet = Bullets(spaceship.rect.x, spaceship.rect.y - 10)
 bullets_group = pygame.sprite.Group()
 
 # initialise Aliens
@@ -257,7 +253,7 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_r:
+            if event.key == pygame.K_r and screen.game_over != 0:
                 # replay game
                 screen.game_over = 0
                 # remove all objects
@@ -280,7 +276,8 @@ while run:
         if screen.cooldown <= 0:
 
             # randomly drop bomb from alien
-            if current_time-AlienBomb.last_shot > AlienBomb.cooldown and len(aliens_bomb_group) < 8 and len(aliens_group):
+            if current_time - AlienBomb.last_shot > AlienBomb.cooldown and len(aliens_bomb_group) < 8 and len(
+                    aliens_group):
                 attacking_alien = random.choice(aliens_group.sprites())
                 aliens_bomb_group.add(
                     AlienBomb(attacking_alien.rect.centerx, attacking_alien.rect.bottom))
@@ -304,24 +301,24 @@ while run:
 
         if screen.cooldown > 0:
             screen.draw_text('GET READY!', screen.font_bold,
-                             (screen.width//2-150, screen.hight//2-100))
+                             (screen.width // 2 - 150, screen.hight // 2 - 100))
             screen.draw_text(str(screen.cooldown), screen.font_bold,
-                             (screen.width//2-30, screen.hight//2))
-            if current_time-screen.time > 1000:
+                             (screen.width // 2 - 30, screen.hight // 2))
+            if current_time - screen.time > 1000:
                 screen.time = current_time
                 screen.cooldown -= 1
     explosion_group.update()
 
     if screen.game_over == 1:
         screen.draw_text('YOU WON!', screen.font_bold,
-                         (screen.width//2-150, screen.hight//2-100))
+                         (screen.width // 2 - 150, screen.hight // 2 - 100))
         screen.draw_text('press R to replay', screen.font_light,
-                         (screen.width//2-100, screen.hight//2-50))
+                         (screen.width // 2 - 100, screen.hight // 2 - 50))
     if screen.game_over == -1:
         screen.draw_text('YOU LOSE!', screen.font_bold,
-                         (screen.width//2-150, screen.hight//2-100))
+                         (screen.width // 2 - 150, screen.hight // 2 - 100))
 
         screen.draw_text('press R to replay', screen.font_light,
-                         (screen.width//2-100, screen.hight//2-50))
+                         (screen.width // 2 - 100, screen.hight // 2 - 50))
 
     screen.update_screen()
