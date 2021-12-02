@@ -24,7 +24,7 @@ pygame.init()
 pygame.mixer.init()
 
 
-class Audio():
+class Audio:
     def __init__(self, path) -> None:
         self.audio = pygame.mixer.Sound(path)
         self.audio.set_volume(0.2)
@@ -35,7 +35,7 @@ class Screen:
 
     def __init__(self):
         self.width = SCREEN_WIDTH
-        self.hight = SCREEN_HEIGHT
+        self.height = SCREEN_HEIGHT
         self.screen = self.set_window()
         self.fps = 60
         self.cooldown = 3
@@ -43,14 +43,14 @@ class Screen:
         self.time = pygame.time.get_ticks()
         self.image = pygame.image.load(BACKGROUND_IMAGE_PATH)
         self.font_bold = pygame.font.Font(
-            'resources/fonts/Petrona-Bold.ttf', 60, bold=True)
+            'resources/fonts/Petrona-Bold.ttf', 60)
         self.font_light = pygame.font.Font(
-            'resources/fonts/Petrona-Italic.ttf', 30, bold=True)
+            'resources/fonts/Petrona-Italic.ttf', 30)
         pygame.display.set_caption(WINDOW_CAPTION)
         pygame.display.set_icon(pygame.image.load(WINDOW_ICON_PATH))
 
     def set_window(self):
-        return pygame.display.set_mode((self.width, self.hight))
+        return pygame.display.set_mode((self.width, self.height))
 
     def draw_background(self):
         self.screen.blit(self.image, (0, 0))
@@ -61,7 +61,7 @@ class Screen:
 
     # def display_score(self):
     #     self.screen.blit(pygame.font.)
-    # def status(self,messege,size):
+    # def status(self,message,size):
 
     @staticmethod
     def update_screen() -> None:
@@ -76,6 +76,7 @@ screen = Screen()
 class Spaceship(pygame.sprite.Sprite):
     def __init__(self, x, y, health) -> None:
         super().__init__()
+        self.mask = None
         self.image = pygame.transform.scale(
             pygame.image.load(SPACESHIP_IMAGE), (64, 50))
         self.rect = self.image.get_rect()
@@ -88,7 +89,7 @@ class Spaceship(pygame.sprite.Sprite):
         screen.game_over = 0
 
         speed = int(ROCKET_SPEED)
-        reload_time = int(RELOAD_TIME)  # in miliseconds default 500
+        reload_time = int(RELOAD_TIME)  # in milliseconds default 500
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT] and self.rect.left > 0:
             self.rect.x -= speed
@@ -182,7 +183,7 @@ class Alien(pygame.sprite.Sprite):
 # Alien Bullets class
 class AlienBomb(pygame.sprite.Sprite):
     last_shot = pygame.time.get_ticks()
-    cooldown = 1000  # milisecond
+    cooldown = 1000  # millisecond
 
     def __init__(self, x, y) -> None:
         super().__init__()
@@ -194,7 +195,7 @@ class AlienBomb(pygame.sprite.Sprite):
     def update(self) -> None:
         speed = int(BULLET_SPEED)
         self.rect.y += speed // 2
-        if self.rect.top > screen.hight:
+        if self.rect.top > screen.height:
             self.kill()
         if pygame.sprite.spritecollide(self, spaceship_group, False, pygame.sprite.collide_mask):
             self.kill()
@@ -229,7 +230,7 @@ class Explosion(pygame.sprite.Sprite):
 
 
 # initialise spaceship
-spaceship = Spaceship(screen.width // 2, screen.hight - 100, 3)
+spaceship = Spaceship(screen.width // 2, screen.height - 100, 3)
 spaceship_group = pygame.sprite.Group()
 spaceship_group.add(spaceship)
 
@@ -301,9 +302,9 @@ while run:
 
         if screen.cooldown > 0:
             screen.draw_text('GET READY!', screen.font_bold,
-                             (screen.width // 2 - 150, screen.hight // 2 - 100))
+                             (screen.width // 2 - 150, screen.height // 2 - 100))
             screen.draw_text(str(screen.cooldown), screen.font_bold,
-                             (screen.width // 2 - 30, screen.hight // 2))
+                             (screen.width // 2 - 30, screen.height // 2))
             if current_time - screen.time > 1000:
                 screen.time = current_time
                 screen.cooldown -= 1
@@ -311,14 +312,14 @@ while run:
 
     if screen.game_over == 1:
         screen.draw_text('YOU WON!', screen.font_bold,
-                         (screen.width // 2 - 150, screen.hight // 2 - 100))
+                         (screen.width // 2 - 150, screen.height // 2 - 100))
         screen.draw_text('press R to replay', screen.font_light,
-                         (screen.width // 2 - 100, screen.hight // 2 - 50))
+                         (screen.width // 2 - 100, screen.height // 2 - 50))
     if screen.game_over == -1:
         screen.draw_text('YOU LOSE!', screen.font_bold,
-                         (screen.width // 2 - 150, screen.hight // 2 - 100))
+                         (screen.width // 2 - 150, screen.height // 2 - 100))
 
         screen.draw_text('press R to replay', screen.font_light,
-                         (screen.width // 2 - 100, screen.hight // 2 - 50))
+                         (screen.width // 2 - 100, screen.height // 2 - 50))
 
     screen.update_screen()
